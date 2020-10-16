@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>防抖</title>
+</head>
+<body>
+    <button id="btn">点击</button>
+    <script>
+        // 防抖就是一段时间结束后，才能触发一次事件，如果一段时间未结束再次触发事件，就会重新开始计算时间
+        let btn = document.getElementById('btn')
+        function debounce(func,wait,immediate){
+            let timer = null
+            return function(){
+                // 判断是否配置immediate为true，并且是第一次点击（!timer）
+                if(immediate){
+                    if(!timer) func.apply(this,arguments)
+                }
+                clearTimeout(timer)
+                timer = setTimeout(()=> {
+                    func.apply(this,arguments)
+                },wait)
+            }
+        }
+        function logger(){
+            console.log('logger')
+        }
+        // 第三个参数表示第一次点击的时候触发一下
+        btn.addEventListener('click',debounce(logger,1000,true))
+    </script>
+</body>
+</html>

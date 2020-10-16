@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>节流</title>
+</head>
+<body>
+    <button id="btn">快速点击</button>
+    <script>
+        // 节流 throttle 就是保证在一段时间内，核心代码只执行一次
+
+        /*基本用法：在1s内只执行一次*/
+        /*let btn = document.getElementById('btn')
+        function throttle(func,wait){
+            let previous = 0 // 上一次执行核心代码时的毫秒数，初始值为0
+            return function() {
+                let now = Date.now() // 当前点击时的毫秒数
+                let remaning = wait - (now - previous) // 比较设置时间wait和两次点击时间差的大小，如果小于0，说明可以执行
+                if(remaning < 0){
+                    logger.apply(this,arguments)
+                    previous = now
+                }
+            }
+            
+        }
+        function logger(){
+            console.log('logger')
+        }
+        btn.addEventListener('click',throttle(logger,1000))*/
+
+        /*
+           设置trailing:true，表示在最后一次点击时（不管是否在1s内）都执行
+           设置leading:false,表示第一次点击的时候不执行
+        */
+        let btn = document.getElementById('btn')
+        function throttle(func,wait,options){
+            let args,context, timer, previous = 0;// 上一次执行核心代码时的毫秒数，初始值为0
+            let later = function(){
+                previous = options.leading === false ? 0 :Date.now()
+                logger.apply(context,args)
+                args = context = null // 最后应该把变量置为null,防止内存泄漏
+            }
+            let throttled= function() {
+                args = arguments
+                context = this
+                let now = Date.now() // 当前点击时的毫秒数
+                // 不执行第一次点击
+                if(!previous && options.leading === false) previous = now
+                let remaning = wait - (now - previous)
+                if(timer){
+                    clearTimeout(timer)
+                    timer = null
+                }
+                if(remaning < 0){
+                    logger.apply(context,args)
+                    previous = now
+                }else if(!timer && options.trailing !== false){ // options.trailing !== false 不配置trailing，默认执行最后一次点击
+                    // 没执行定时器，而且设置的trailing不为false时
+                    timer = setTimeout(later,remaning)// remaning表示距离1s还差多少毫秒
+                }
+
+            }
+            return throttled
+            
+        }
+        function logger(){
+            console.log('logger')
+        }
+        btn.addEventListener('click',throttle(logger,1000,{leading: true}))
+    </script>
+</body>
+</html>
